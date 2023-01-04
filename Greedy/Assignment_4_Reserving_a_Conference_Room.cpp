@@ -1,41 +1,39 @@
 #include <iostream>
-#include <cmath>
-#include <cstring>
 #include <vector>
 #include <functional>
 #include <algorithm>
 using namespace std;
-
+/*---------------記錄每筆預約的開始及結束時間----------------*/
 class reserve{
 public:
     int s, f;
 };
 
+/*----本題使用貪婪演算法，最先結束 / 同時結束較晚開始者優先----*/
+bool comparing(reserve a, reserve b){
+    if (a.f!=b.f)   return a.f < b.f;
+    else            return a.s > b.s;
+}
 int N;
-int num[1010];
-int m=0, last=-1;
-vector <vector <int>> F;
 vector <reserve> r;
+int t = 0;
 
 int main (){
+		/*-----------------------io 優化-----------------------*/
     ios_base::sync_with_stdio(false);
     cin.tie(0);
+
+		/*--------------------輸入及設定變數-------------------*/
     cin >> N;
-    F.resize(1010, vector <int> (N, -1));
     r.resize(N);
+    for (int i=0 ; i<N ; i++)    cin >> r[i].s >> r[i].f;
+
+		/*---以函式排序 (貪婪，先結束、同時結束較晚開始者優先)--*/
+    sort(r.begin(), r.end(), comparing);
     for (int i=0 ; i<N ; i++){
-        cin >> r[i].s >> r[i].f;
-        F[r[i].f][num[r[i].f]++] = r[i].s;
-        if (r[i].f>m)   m=r[i].f;
-    }
-    for (int i=1 ; i<=m ; i++){
-        sort(F[i].begin(), F[i].begin()+num[i], greater<int>());
-    }
-    for (int i=1 ; i<=m ; i++){
-        if (num[i]>0){
-            if (F[i][0]<last)   continue;
-            cout << F[i][0] << " "<<i << "\n";
-            last = i;
+        if (r[i].s >= t){
+            t = r[i].f;
+            cout << r[i].s << " " << r[i].f << "\n";
         }
     }
 }
