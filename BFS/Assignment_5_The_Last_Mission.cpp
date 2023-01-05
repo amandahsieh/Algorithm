@@ -1,64 +1,68 @@
 #include <iostream>
-#include <cmath>
 #include <cstring>
-#include <string>
 #include <vector>
 #include <queue>
 #include <algorithm>
 using namespace std;
-long long int c;
-class   pos{
-public:
-    int x,y;
-};
-int l, r;
-vector <string> mid;
-int ans;
 
-int bfs(int starti, int startj, int last){
+/*宣告變數：c case 數   l 可見範圍的長度   r 可降落範圍長度   s 地圖   pos 座標*/
+int c, l, r;
+vector <string> s;
+int ans=0;
+class pos{
+public:
+    int x, y;
+};
+
+/*---bfs 搜尋視野內最大面積：每次在上下左右加入草地區域 (push)，設為^避免重複---*/
+int bfs(int mx,int my){
     int t=0;
-    queue <pos> q;
-    pos tp;
-    tp.x = starti;
-    tp.y = startj;
-    q.push(tp);
-    mid[starti][startj]='^';
-    int si, sj;
-    while (!q.empty()){
-        si = q.front().x;
-        sj = q.front().y;
-        q.pop();
+    pos m;
+    m.x = mx;
+    m.y = my;
+    queue <pos> p;
+    s[m.x][m.y] = '^';
+    p.push(m);
+    int tx, ty;
+    while (!p.empty()){
+        tx = p.front().x;
+        ty = p.front().y;
+        p.pop();
         t++;
-        if (sj>0){
-            if (mid[si][sj-1]=='_') {
-                mid[si][sj-1]='^';
-                tp.x = si;
-                tp.y = sj-1;
-                q.push(tp);
+        if (tx > 0){
+            if (s[tx-1][ty]=='_'){
+                s[tx-1][ty] = '^';
+                pos tl;
+                tl.x = tx-1;
+                tl.y = ty;
+                p.push(tl);
             }
         }
-        if (sj<last){
-            if (mid[si][sj+1]=='_') {
-                mid[si][sj+1]='^';
-                tp.x = si;
-                tp.y = sj+1;
-                q.push(tp);
+        if (tx < l-1){
+            if (s[tx+1][ty]=='_'){
+                s[tx+1][ty] = '^';
+                pos tr;
+                tr.x = tx+1;
+                tr.y = ty;
+                p.push(tr);
             }
         }
-        if (si>0){
-            if (mid[si-1][sj]=='_') {
-                mid[si-1][sj]='^';
-                tp.x = si-1;
-                tp.y = sj;
-                q.push(tp);
+        if (ty > 0){
+            if (s[tx][ty-1]=='_'){
+                s[tx][ty-1] = '^';
+                pos tu;
+                tu.x = tx;
+                tu.y = ty-1;
+                p.push(tu);
             }
         }
-        if (si<last){
-            if (mid[si+1][sj]=='_') {
-                mid[si+1][sj]='^';
-                tp.x = si+1;
-                tp.y = sj;
-                q.push(tp);
+        if (ty < l-1){
+            if (s[tx][ty+1]=='_'){
+                s[tx][ty+1] = '^';
+                pos td;
+                td.x = tx;
+                td.y = ty+1;
+                p.push(td);
             }
         }
     }
@@ -66,65 +70,23 @@ int bfs(int starti, int startj, int last){
 }
 
 int main (){
-    ios_base::sync_with_stdio(false);
-    cin.tie(0);
     cin >> c;
     while (c--){
-        ans=0;
+				/*-------------------設定、輸入變數-------------------*/
+        ans = 0;
         cin >> l >> r;
-        int m = l/2;
-        mid.resize(l+5);
-        for (int i=0 ; i<l ; i++) cin >> mid[i];
-        for (int i=m-r ; i<=m+r ; i++){
-            for (int j=m-r ; j<=m+r ; j++){
-                if (mid[i][j]!='_') continue;
-                mid[i][j]='^';
-                int thisans = bfs(i, j, l-1);
-                if (ans<thisans)    ans = thisans;
+        s.resize(l);
+        for (int i=0 ; i<l ; i++)   cin >> s[i];
+				/*---在可降落範圍內，搜尋最大草地面積 (範圍為視野內)---*/
+        for (int i=l/2-r ; i<=l/2+r ; i++){
+            for (int j=l/2-r ; j<=l/2+r ; j++){
+                if (s[i][j]=='_'){
+                    s[i][j] = '^';
+                    ans = max(ans, bfs(i, j));
+                }
             }
         }
-        cout << ans << endl;
-        mid.clear();
+        cout << ans << "\n";
+        s.clear();
     }
 }
-/*
-5
-8 3
-________
-________
-________
-________
-________
-________
-________
-________
-8 3
-^^^^^^^^
-____^^__
-^^^_____
-^^^___^_
-________
-_^^_____
-___^^___
-____^^^^
-8 3
-^^^^^^^^
-^^^^^^^^
-^^^^^^^^
-^^^^^^^^
-^^^^^^^^
-^^^^^^^_
-^^^^^^_^
-^^^^^_^^
-4 1
-^^^^
-^^__
-^^^^
-^^_^
-4 1
-____
-^___
-^^__
-^^__
-
-*/
